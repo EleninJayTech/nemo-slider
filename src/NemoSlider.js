@@ -57,7 +57,7 @@ class NemoSlider{
 }
 
 /**
- * todo 명칭 수정
+ * 중복 실행 방지 익명 함수
  * @param {string} targetSelector
  * @param {object} [_options]
  * @returns {NemoSlider}

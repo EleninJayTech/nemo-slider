@@ -10,33 +10,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var NemoSlider = /*#__PURE__*/function () {
-  /**
-   * 버전
-   * @type {string}
-   */
-
-  /**
-   * 사용된 개체 기록
-   * todo 명칭 면경 필요
-  	 * @type {{}}
-   */
-
-  /**
-   * 대상 선택자
-  	 * @type {string}
-   */
-
-  /**
-   * 기본 옵션
-   * @type {{aa: number, bb: number, cc: number}}
-   */
-
-  /**
-   * 생성자
-   * @param {string} targetSelector
-   * @param {object} [_options]
-   */
+var NemoSlider = function () {
   function NemoSlider(targetSelector, _options) {
     _classCallCheck(this, NemoSlider);
 
@@ -52,19 +26,13 @@ var NemoSlider = /*#__PURE__*/function () {
 
     var _this = this;
 
-    _this.targetSelector = targetSelector; // 옵션 설정 시 기본 옵션에 업데이트
+    _this.targetSelector = targetSelector;
 
     if (_typeof(_options) == 'object') {
       var defaultOptions = _this.options;
       _this.options = Object.assign(defaultOptions, _options);
     }
   }
-  /**
-   * 추가 옵션 할당
-   * @param {object} _options
-   * @returns {NemoSlider}
-   */
-
 
   _createClass(NemoSlider, [{
     key: "setOptions",
@@ -78,14 +46,6 @@ var NemoSlider = /*#__PURE__*/function () {
 
   return NemoSlider;
 }();
-/**
- * todo 명칭 수정
- * @param {string} targetSelector
- * @param {object} [_options]
- * @returns {NemoSlider}
- * @constructor
- */
-
 
 _defineProperty(NemoSlider, "element", {});
 
