@@ -56,10 +56,24 @@ class NemoSlider{
 		return _this;
 	}
 
+	static #encodeSelectorMap = {
+		'#':'_s_',
+		'>':'_n_',
+		'.':'_d_',
+		':':'_dd_',
+		'-':'_da_',
+		'(':'_9_',
+		')':'_0_'
+	};
 	static encodeSelector(selector){
+		let _this = this;
 		// 공백 제거
 		selector = selector.replace(/\s/gi,"");
-		// todo 특수 문자 변경 # > . : - ( )
+
+		// 특수 문자 변경
+		for(let mappingCode in _this.#encodeSelectorMap){
+			selector = selector.replaceAll(mappingCode, _this.#encodeSelectorMap[mappingCode]);
+		}
 
 		selector = encodeURIComponent(selector);
 		return selector;
@@ -67,7 +81,7 @@ class NemoSlider{
 }
 
 /**
- * 중복 실행 방지 익명 함수
+ * 중복 생성 방지 익명 함수
  * @param {string} targetSelector
  * @param {object} [_options]
  * @returns {NemoSlider}

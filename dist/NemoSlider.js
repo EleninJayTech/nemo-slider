@@ -10,6 +10,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
 var NemoSlider = function () {
   function NemoSlider(targetSelector, _options) {
     _classCallCheck(this, NemoSlider);
@@ -45,7 +53,14 @@ var NemoSlider = function () {
   }], [{
     key: "encodeSelector",
     value: function encodeSelector(selector) {
+      var _this = this;
+
       selector = selector.replace(/\s/gi, "");
+
+      for (var mappingCode in _classStaticPrivateFieldSpecGet(_this, NemoSlider, _encodeSelectorMap)) {
+        selector = selector.replaceAll(mappingCode, _classStaticPrivateFieldSpecGet(_this, NemoSlider, _encodeSelectorMap)[mappingCode]);
+      }
+
       selector = encodeURIComponent(selector);
       return selector;
     }
@@ -55,6 +70,19 @@ var NemoSlider = function () {
 }();
 
 _defineProperty(NemoSlider, "element", {});
+
+var _encodeSelectorMap = {
+  writable: true,
+  value: {
+    '#': '_s_',
+    '>': '_n_',
+    '.': '_d_',
+    ':': '_dd_',
+    '-': '_da_',
+    '(': '_9_',
+    ')': '_0_'
+  }
+};
 
 var NS = function NS() {
   var targetSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
