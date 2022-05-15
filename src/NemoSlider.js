@@ -6,14 +6,13 @@ class NemoSlider{
 	version='1.0.0';
 
 	/**
-	 * 사용된 개체 기록
-	 * todo 명칭 면경 필요
+	 * 사용된 객체 기록
  	 * @type {{}}
 	 */
 	static element={};
 
 	/**
-	 * 대상 선택자
+	 * 대상 선택자 container
  	 * @type {string}
 	 */
 	targetSelector='';
@@ -23,9 +22,11 @@ class NemoSlider{
 	 * @type {{aa: number, bb: number, cc: number}}
 	 */
 	options={
-		aa:1,
-		bb:2,
-		cc:3
+		// 선택자
+		selector:{
+			// 메인 콘텐츠 영역
+			contentsWrap:'contents-wrap'
+		}
 	};
 
 	/**
@@ -54,6 +55,15 @@ class NemoSlider{
 		Object.assign(_this.options, _options);
 		return _this;
 	}
+
+	static encodeSelector(selector){
+		// 공백 제거
+		selector = selector.replace(/\s/gi,"");
+		// todo 특수 문자 변경 # > . : - ( )
+
+		selector = encodeURIComponent(selector);
+		return selector;
+	}
 }
 
 /**
@@ -63,12 +73,13 @@ class NemoSlider{
  * @returns {NemoSlider}
  * @constructor
  */
-let NS = function(targetSelector, _options){
-	if( NemoSlider.element[targetSelector] ){
-		Object.assign(NemoSlider.element[targetSelector].options, _options);
+let NS = function(targetSelector = 'body', _options){
+	let elementSelector = NemoSlider.encodeSelector(targetSelector);
+	if( NemoSlider.element[elementSelector] ){
+		Object.assign(NemoSlider.element[elementSelector].options, _options);
 	} else {
-		NemoSlider.element[targetSelector] = new NemoSlider(targetSelector, _options);
+		NemoSlider.element[elementSelector] = new NemoSlider(targetSelector, _options);
 	}
 
-	return NemoSlider.element[targetSelector];
+	return NemoSlider.element[elementSelector];
 };

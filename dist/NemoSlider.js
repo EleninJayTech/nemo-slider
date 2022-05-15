@@ -19,9 +19,9 @@ var NemoSlider = function () {
     _defineProperty(this, "targetSelector", '');
 
     _defineProperty(this, "options", {
-      aa: 1,
-      bb: 2,
-      cc: 3
+      selector: {
+        contentsWrap: 'contents-wrap'
+      }
     });
 
     var _this = this;
@@ -42,6 +42,13 @@ var NemoSlider = function () {
       Object.assign(_this.options, _options);
       return _this;
     }
+  }], [{
+    key: "encodeSelector",
+    value: function encodeSelector(selector) {
+      selector = selector.replace(/\s/gi, "");
+      selector = encodeURIComponent(selector);
+      return selector;
+    }
   }]);
 
   return NemoSlider;
@@ -49,13 +56,19 @@ var NemoSlider = function () {
 
 _defineProperty(NemoSlider, "element", {});
 
-var NS = function NS(targetSelector, _options) {
-  if (NemoSlider.element[targetSelector]) {
-    Object.assign(NemoSlider.element[targetSelector].options, _options);
+var NS = function NS() {
+  var targetSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+
+  var _options = arguments.length > 1 ? arguments[1] : undefined;
+
+  var elementSelector = NemoSlider.encodeSelector(targetSelector);
+
+  if (NemoSlider.element[elementSelector]) {
+    Object.assign(NemoSlider.element[elementSelector].options, _options);
   } else {
-    NemoSlider.element[targetSelector] = new NemoSlider(targetSelector, _options);
+    NemoSlider.element[elementSelector] = new NemoSlider(targetSelector, _options);
   }
 
-  return NemoSlider.element[targetSelector];
+  return NemoSlider.element[elementSelector];
 };
 
