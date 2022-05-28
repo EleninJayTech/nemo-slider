@@ -12,9 +12,9 @@
 	<script src="../src/NemoSlider.js" defer></script>
 </head>
 <body>
-	<div id="typeA">
-		<div class="wrap-contents">
-			<div><img src="../examples/images/type_a/001.png" alt="001"></div>
+	<div class="typeA ns-mode-rolling">
+		<div class="ns-wrap-contents">
+			<div class="ns-item-active"><img src="../examples/images/type_a/001.png" alt="001"></div>
 			<div><img src="../examples/images/type_a/002.png" alt="002"></div>
 			<div><img src="../examples/images/type_a/003.png" alt="003"></div>
 			<div><img src="../examples/images/type_a/004.png" alt="004"></div>
@@ -23,9 +23,22 @@
 		</div>
 	</div>
 
+	<!--
+	<div class="typeA">
+		<div class="ns-wrap-contents">
+			<div class="item-active"><img src="../examples/images/type_a/001.png" alt="001"></div>
+			<div><img src="../examples/images/type_a/002.png" alt="002"></div>
+			<div><img src="../examples/images/type_a/003.png" alt="003"></div>
+			<div><img src="../examples/images/type_a/004.png" alt="004"></div>
+			<div><img src="../examples/images/type_a/005.png" alt="005"></div>
+			<div><img src="../examples/images/type_a/006.png" alt="006"></div>
+		</div>
+	</div>
+	-->
+
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			let cccc = NS("#typeA");
+			let cccc = NS(".typeA");
 		});
 	</script>
 </body>

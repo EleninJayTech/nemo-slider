@@ -6,6 +6,12 @@ class NemoSlider{
 	version='1.0.0';
 
 	/**
+	 * 기능 모드 종류
+	 * @type {[string]}
+	 */
+	#modeList=['rolling'];
+
+	/**
 	 * NS 생성된 객체 기록
  	 * @type {{}}
 	 */
@@ -19,23 +25,64 @@ class NemoSlider{
 
 	/**
 	 * 기본 옵션
-	 * @type {{aa: number, bb: number, cc: number}}
+	 * @type {{mode: string, itemPagination: string, btnPrev: string, btnNext: string, itemContents: string, wrapContents: string, wrapPagination: string}}
 	 */
 	options={
+		// 기능 모드
+		mode:'rolling'
+
 		// 선택자 : 메인 콘텐츠 영역
-		wrapContents:'.wrap-contents'
+		, wrapContents:'.ns-wrap-contents'
 		// 선택자 : 메인 콘텐츠
-		, itemContents:'.item-contents'
+		, itemContents:'.ns-contents-item'
 
 		// 선택자 : 페이지 네이션 영역
-		, wrapPagination:'.wrap-pagination'
+		, wrapPagination:'.ns-wrap-pagination'
 		// 선택자 : 페이지
-		, itemPagination:'.item-page'
+		, itemPagination:'.ns-page-item'
 
 		// 선택자 : 이전 버튼
 		, btnPrev:'.btn-prev'
 		// 선택자 : 다음 버튼
 		, btnNext:'.btn-next'
+	};
+
+	/**
+	 * 선택된 대상 엘리먼트 변수 기록
+	 * @type {NodeListOf<*>}
+	 */
+	#element=null;
+
+	/**
+	 *
+	 * @type {{}}
+	 */
+	#elementContents={};
+
+	/**
+	 *
+	 * @type {{}}
+	 */
+	#elementContentsItems={};
+
+	/**
+	 * 현재 표시할 아이템 index
+	 * @type {number}
+	 */
+	currentIndex=0;
+
+	/**
+	 * 선택자에 사용되는 특수 문자
+	 * @type {{"#": string, "(": string, ")": string, ":": string, "-": string, ">": string, ".": string}}
+	 */
+	static #encodeSelectorMap = {
+		'#':'_s_',
+		'>':'_n_',
+		'.':'_d_',
+		':':'_dd_',
+		'-':'_da_',
+		'(':'_9_',
+		')':'_0_'
 	};
 
 	/**
@@ -52,7 +99,55 @@ class NemoSlider{
 			this.options = Object.assign(defaultOptions, _options);
 		}
 
+		this.#init();
 		this.#run();
+	}
+
+	/**
+	 * 초기 설정
+	 */
+	#init(){
+		let _this = this;
+		let mode = this.getMode();
+
+		_this.#element = document.querySelectorAll(_this.targetSelector);
+		_this.#element.forEach(function(_element, elementIndex){
+			// 현재 영역에 모드 class 추가
+			_element.classList.add(`ns-mode-${mode}`);
+
+			// 콘텐츠 영역
+			_this.#elementContents[elementIndex] = _element.querySelector(_this.options.wrapContents);
+			_this.#elementContents[elementIndex].classList.add('ns-wrap-contents');
+
+			// 콘텐츠 아이템
+			_this.#elementContentsItems[elementIndex] = _element.querySelectorAll(`${_this.options.wrapContents} > *`);
+
+			_this.setContentsPosition(elementIndex);
+		});
+	}
+
+	/**
+	 * 실행
+	 */
+	#run(){
+		console.log(`RUN ${this.targetSelector}`);
+		return this;
+	}
+
+	/**
+	 * 콘텐츠 영역이 static 일 경우 relative 로 변경
+	 * @param {number} elementIndex
+	 * @returns {NemoSlider}
+	 */
+	setContentsPosition(elementIndex){
+		let el_contents = this.#elementContents[elementIndex];
+		let el_style = window.getComputedStyle(el_contents);
+
+		if( el_style.position === 'static' ){
+			el_contents.style.position = 'relative';
+		}
+
+		return this;
 	}
 
 	/**
@@ -65,16 +160,40 @@ class NemoSlider{
 		return this;
 	}
 
-	// 선택자에 사용되는 특수 문자
-	static #encodeSelectorMap = {
-		'#':'_s_',
-		'>':'_n_',
-		'.':'_d_',
-		':':'_dd_',
-		'-':'_da_',
-		'(':'_9_',
-		')':'_0_'
-	};
+	/**
+	 * 모드 종류
+	 * @returns {string[]}
+	 */
+	getModeList(){
+		return this.#modeList;
+	}
+
+	/**
+	 * 모드 설정 함수
+	 * @param mode
+	 * @returns {NemoSlider}
+	 */
+	setMode(mode='rolling'){
+		if( this.#modeList.indexOf(mode) < 0 ){
+			mode = 'rolling';
+		}
+
+		this.options.mode = mode;
+		return this;
+	}
+
+	/**
+	 * 현재 설정된 모드 확인
+	 * @returns {string}
+	 */
+	getMode(){
+		let mode = this.options.mode;
+		if( this.#modeList.indexOf(mode) < 0 ){
+			mode = 'rolling';
+		}
+
+		return mode;
+	}
 
 	/**
 	 * 선택자의 특수문자를 매핑
@@ -92,18 +211,6 @@ class NemoSlider{
 
 		selector = encodeURIComponent(selector);
 		return selector;
-	}
-
-	// todo 포지션 css 확인 후 수정
-
-	// todo 모드에 따라 콘텐츠 위치 배열
-
-	/**
-	 * 실행
-	 */
-	#run(){
-		console.log(`RUN ${this.targetSelector}`);
-		return this;
 	}
 }
 
