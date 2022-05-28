@@ -8,6 +8,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
+function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
@@ -18,47 +22,52 @@ function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiv
 
 function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+var _run = new WeakSet();
+
 var NemoSlider = function () {
   function NemoSlider(targetSelector, _options) {
     _classCallCheck(this, NemoSlider);
+
+    _classPrivateMethodInitSpec(this, _run);
 
     _defineProperty(this, "version", '1.0.0');
 
     _defineProperty(this, "targetSelector", '');
 
     _defineProperty(this, "options", {
-      selector: {
-        contentsWrap: 'contents-wrap'
-      }
+      wrapContents: '.wrap-contents',
+      itemContents: '.item-contents',
+      wrapPagination: '.wrap-pagination',
+      itemPagination: '.item-page',
+      btnPrev: '.btn-prev',
+      btnNext: '.btn-next'
     });
 
-    var _this = this;
-
-    _this.targetSelector = targetSelector;
+    this.targetSelector = targetSelector;
 
     if (_typeof(_options) == 'object') {
-      var defaultOptions = _this.options;
-      _this.options = Object.assign(defaultOptions, _options);
+      var defaultOptions = this.options;
+      this.options = Object.assign(defaultOptions, _options);
     }
+
+    _classPrivateMethodGet(this, _run, _run2).call(this);
   }
 
   _createClass(NemoSlider, [{
     key: "setOptions",
     value: function setOptions(_options) {
-      var _this = this;
-
-      Object.assign(_this.options, _options);
-      return _this;
+      Object.assign(this.options, _options);
+      return this;
     }
   }], [{
     key: "encodeSelector",
     value: function encodeSelector(selector) {
-      var _this = this;
-
       selector = selector.replace(/\s/gi, "");
 
-      for (var mappingCode in _classStaticPrivateFieldSpecGet(_this, NemoSlider, _encodeSelectorMap)) {
-        selector = selector.replaceAll(mappingCode, _classStaticPrivateFieldSpecGet(_this, NemoSlider, _encodeSelectorMap)[mappingCode]);
+      for (var mappingCode in _classStaticPrivateFieldSpecGet(this, NemoSlider, _encodeSelectorMap)) {
+        selector = selector.replaceAll(mappingCode, _classStaticPrivateFieldSpecGet(this, NemoSlider, _encodeSelectorMap)[mappingCode]);
       }
 
       selector = encodeURIComponent(selector);
@@ -69,7 +78,12 @@ var NemoSlider = function () {
   return NemoSlider;
 }();
 
-_defineProperty(NemoSlider, "element", {});
+function _run2() {
+  console.log("RUN ".concat(this.targetSelector));
+  return this;
+}
+
+_defineProperty(NemoSlider, "instance", {});
 
 var _encodeSelectorMap = {
   writable: true,
@@ -84,19 +98,21 @@ var _encodeSelectorMap = {
   }
 };
 
-var NS = function NS() {
+function NS() {
   var targetSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
 
   var _options = arguments.length > 1 ? arguments[1] : undefined;
 
-  var elementSelector = NemoSlider.encodeSelector(targetSelector);
+  var instanceSelector = NemoSlider.encodeSelector(targetSelector);
 
-  if (NemoSlider.element[elementSelector]) {
-    Object.assign(NemoSlider.element[elementSelector].options, _options);
+  if (NemoSlider.instance[instanceSelector]) {
+    Object.assign(NemoSlider.instance[instanceSelector].options, _options);
   } else {
-    NemoSlider.element[elementSelector] = new NemoSlider(targetSelector, _options);
+    NemoSlider.instance[instanceSelector] = new NemoSlider(targetSelector, _options);
   }
 
-  return NemoSlider.element[elementSelector];
-};
+  return NemoSlider.instance[instanceSelector];
+}
+
+;
 
