@@ -3,7 +3,14 @@ class NemoSlider{
 	 * 버전
 	 * @type {string}
 	 */
-	version='1.0.0';
+	static version='1.0.0';
+
+	/**
+	 * ENVIRONMENT
+	 * development|production
+	 * @type {string}
+	 */
+	static ENVIRONMENT='production';
 
 	/**
 	 * 기능 모드 종류
@@ -21,11 +28,11 @@ class NemoSlider{
 	 * 대상 선택자 container
  	 * @type {string}
 	 */
-	targetSelector='';
+	#targetSelector='';
 
 	/**
 	 * 기본 옵션
-	 * @type {{mode: string, itemPagination: string, btnPrev: string, btnNext: string, itemContents: string, wrapContents: string, wrapPagination: string}}
+	 * @type {{mode: string, delay: number, itemPagination: string, btnPrev: string, btnNext: string, itemContents: string, wrapContents: string, wrapPagination: string}}
 	 */
 	options={
 		// 기능 모드
@@ -45,22 +52,28 @@ class NemoSlider{
 		, btnPrev:'.btn-prev'
 		// 선택자 : 다음 버튼
 		, btnNext:'.btn-next'
+
+		// 변경되는 시간 1,000 = 1초
+		, delay:2000
+		
+		// 마우스 enter 시 동작 멈춤
+		, mouseEnterPlayStop:true
 	};
 
 	/**
 	 * 선택된 대상 엘리먼트 변수 기록
-	 * @type {NodeListOf<*>}
+	 * @type {{}}
 	 */
-	#element=null;
+	#element={};
 
 	/**
-	 *
+	 * element contents wrap
 	 * @type {{}}
 	 */
 	#elementContents={};
 
 	/**
-	 *
+	 * element contents item
 	 * @type {{}}
 	 */
 	#elementContentsItems={};
@@ -69,7 +82,19 @@ class NemoSlider{
 	 * 현재 표시할 아이템 index
 	 * @type {number}
 	 */
-	currentIndex=0;
+	#currentIndex=0;
+
+	/**
+	 * timeInterval 기록
+	 * @type {null}
+	 */
+	#timeInterval = null;
+
+	/**
+	 * 플레이 중
+	 * @type {boolean}
+	 */
+	#playing=false;
 
 	/**
 	 * 선택자에 사용되는 특수 문자
@@ -91,7 +116,7 @@ class NemoSlider{
 	 * @param {object} [_options]
 	 */
 	constructor(targetSelector, _options) {
-		this.targetSelector = targetSelector;
+		this.#targetSelector = targetSelector;
 
 		// 옵션 설정 시 기본 옵션에 업데이트
 		if (typeof _options == 'object') {
@@ -110,37 +135,110 @@ class NemoSlider{
 		let _this = this;
 		let mode = this.getMode();
 
-		_this.#element = document.querySelectorAll(_this.targetSelector);
-		_this.#element.forEach(function(_element, elementIndex){
-			// 현재 영역에 모드 class 추가
-			_element.classList.add(`ns-mode-${mode}`);
+		_this.#element = document.querySelector(_this.#targetSelector);
 
-			// 콘텐츠 영역
-			_this.#elementContents[elementIndex] = _element.querySelector(_this.options.wrapContents);
-			_this.#elementContents[elementIndex].classList.add('ns-wrap-contents');
+		// 현재 영역에 모드 class 추가
+		_this.#element.classList.add(`ns-mode-${mode}`);
 
-			// 콘텐츠 아이템
-			_this.#elementContentsItems[elementIndex] = _element.querySelectorAll(`${_this.options.wrapContents} > *`);
+		// 콘텐츠 영역
+		_this.#elementContents = _this.#element.querySelector(_this.options.wrapContents);
+		_this.#elementContents.classList.add('ns-wrap-contents');
 
-			_this.setContentsPosition(elementIndex);
-		});
+		// 콘텐츠 아이템
+		_this.#elementContentsItems = _this.#element.querySelectorAll(`${_this.options.wrapContents} > *`);
+
+		_this.setContentsPosition();
+
+		// current index 아이템에 ns-item-active 추가
+		_this.activeItem();
 	}
 
 	/**
 	 * 실행
 	 */
 	#run(){
-		console.log(`RUN ${this.targetSelector}`);
+		let _this = this;
+
+		_this.PLAY();
+
+		let stopEvent = function(){
+			_this.STOP();
+			_log('stopEvent');
+		}
+		_this.#elementContents.removeEventListener('mouseenter', stopEvent);
+		_this.#elementContents.addEventListener('mouseenter', stopEvent);
+
+		let playEvent = function(){
+			_this.PLAY();
+			_log('playEvent');
+		}
+		_this.#elementContents.removeEventListener('mouseleave', playEvent);
+		_this.#elementContents.addEventListener('mouseleave', playEvent);
+
+		_log(`RUN ${this.#targetSelector}`);
+	}
+
+	/**
+	 * PLAY
+	 * @returns {NemoSlider}
+	 */
+	PLAY(){
+		let _this = this;
+
+		if( _this.#timeInterval !== null ){
+			_this.STOP();
+		}
+
+		_log(_this.#currentIndex);
+
+		if( _this.#playing === true ){
+			return this;
+		}
+		// 설정된 시간 후 index 1 추가
+		_this.#timeInterval = setInterval(function(){
+			_this.#currentIndex++;
+
+			// 아이템의 최대 인덱스 확인 후 0
+			let maxIndex = _this.#elementContentsItems.length;
+			if( _this.#currentIndex >= maxIndex ){
+				_this.#currentIndex = 0;
+			}
+
+			// item 전체 active 삭제
+			_this.#elementContentsItems.forEach(function (itemElement, itemIndex){
+				itemElement.classList.remove('ns-item-active');
+			});
+			// 현재 index item active
+			_this.activeItem(_this.#currentIndex);
+
+			_log(_this.#currentIndex);
+		}, _this.options.delay);
+
+		_this.#playing = true;
 		return this;
 	}
 
 	/**
-	 * 콘텐츠 영역이 static 일 경우 relative 로 변경
-	 * @param {number} elementIndex
+	 * STOP
 	 * @returns {NemoSlider}
 	 */
-	setContentsPosition(elementIndex){
-		let el_contents = this.#elementContents[elementIndex];
+	STOP(){
+		let _this = this;
+		if( _this.options.mouseEnterPlayStop === false ){
+			return _this;
+		}
+
+		clearInterval(_this.#timeInterval);
+		_this.#playing = false;
+		return _this;
+	}
+
+	/**
+	 * 콘텐츠 영역이 static 일 경우 relative 로 변경
+	 * @returns {NemoSlider}
+	 */
+	setContentsPosition(){
+		let el_contents = this.#elementContents;
 		let el_style = window.getComputedStyle(el_contents);
 
 		if( el_style.position === 'static' ){
@@ -211,6 +309,28 @@ class NemoSlider{
 
 		selector = encodeURIComponent(selector);
 		return selector;
+	}
+
+	/**
+	 * 아이템에 ns-item-active 추가
+	 * @param activeItemIndex
+	 */
+	activeItem(activeItemIndex=this.#currentIndex){
+		let _this = this;
+		let el_activeItem = _this.#elementContentsItems[activeItemIndex];
+		el_activeItem.classList.add('ns-item-active');
+		return this;
+	}
+}
+
+/**
+ * console.log
+ * @param data
+ * @private
+ */
+function _log(...data){
+	if( NemoSlider.ENVIRONMENT === 'development' ){
+		console.log(...data);
 	}
 }
 

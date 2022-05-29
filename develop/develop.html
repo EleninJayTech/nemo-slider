@@ -38,7 +38,8 @@
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			let cccc = NS(".typeA");
+			NemoSlider.ENVIRONMENT = 'development';
+			NS(".typeA", {delay:1000, mouseEnterPlayStop:true});
 		});
 	</script>
 </body>
