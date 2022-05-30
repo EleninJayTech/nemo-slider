@@ -159,8 +159,6 @@ class NemoSlider{
 	#run(){
 		let _this = this;
 
-		_this.PLAY();
-
 		let stopEvent = function(){
 			_this.STOP();
 			_log('stopEvent');
@@ -176,6 +174,8 @@ class NemoSlider{
 		_this.#elementContents.addEventListener('mouseleave', playEvent);
 
 		_log(`RUN ${this.#targetSelector}`);
+
+		_this.PLAY();
 	}
 
 	/**
@@ -189,17 +189,18 @@ class NemoSlider{
 			_this.STOP();
 		}
 
-		_log(_this.#currentIndex);
-
 		if( _this.#playing === true ){
 			return this;
 		}
+
+		_log(_this.#currentIndex);
+
 		// 설정된 시간 후 index 1 추가
+		let maxIndex = _this.#elementContentsItems.length;
 		_this.#timeInterval = setInterval(function(){
 			_this.#currentIndex++;
 
 			// 아이템의 최대 인덱스 확인 후 0
-			let maxIndex = _this.#elementContentsItems.length;
 			if( _this.#currentIndex >= maxIndex ){
 				_this.#currentIndex = 0;
 			}
@@ -255,7 +256,7 @@ class NemoSlider{
 	 */
 	setOptions(_options){
 		Object.assign(this.options, _options);
-		return this;
+		return this.PLAY();
 	}
 
 	/**
@@ -277,7 +278,7 @@ class NemoSlider{
 		}
 
 		this.options.mode = mode;
-		return this;
+		return this.PLAY();
 	}
 
 	/**

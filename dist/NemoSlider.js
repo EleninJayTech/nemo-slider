@@ -135,18 +135,18 @@ var NemoSlider = function () {
         _this.STOP();
       }
 
-      _log(_classPrivateFieldGet(_this, _currentIndex));
-
       if (_classPrivateFieldGet(_this, _playing) === true) {
         return this;
       }
+
+      _log(_classPrivateFieldGet(_this, _currentIndex));
+
+      var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length;
 
       _classPrivateFieldSet(_this, _timeInterval, setInterval(function () {
         var _this$currentIndex, _this$currentIndex2;
 
         _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex2 = _this$currentIndex++, _this$currentIndex)), _this$currentIndex2;
-
-        var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length;
 
         if (_classPrivateFieldGet(_this, _currentIndex) >= maxIndex) {
           _classPrivateFieldSet(_this, _currentIndex, 0);
@@ -197,7 +197,7 @@ var NemoSlider = function () {
     key: "setOptions",
     value: function setOptions(_options) {
       Object.assign(this.options, _options);
-      return this;
+      return this.PLAY();
     }
   }, {
     key: "getModeList",
@@ -214,7 +214,7 @@ var NemoSlider = function () {
       }
 
       this.options.mode = mode;
-      return this;
+      return this.PLAY();
     }
   }, {
     key: "getMode",
@@ -279,8 +279,6 @@ function _init2() {
 function _run2() {
   var _this = this;
 
-  _this.PLAY();
-
   var stopEvent = function stopEvent() {
     _this.STOP();
 
@@ -302,6 +300,8 @@ function _run2() {
   _classPrivateFieldGet(_this, _elementContents).addEventListener('mouseleave', playEvent);
 
   _log("RUN ".concat(_classPrivateFieldGet(this, _targetSelector)));
+
+  _this.PLAY();
 }
 
 _defineProperty(NemoSlider, "version", '1.0.0');
