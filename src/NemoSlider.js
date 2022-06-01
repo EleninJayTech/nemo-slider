@@ -41,12 +41,12 @@ class NemoSlider{
 		// 선택자 : 메인 콘텐츠 영역
 		, wrapContents:'.ns-wrap-contents'
 		// 선택자 : 메인 콘텐츠
-		, itemContents:'.ns-contents-item'
+		// , itemContents:'.ns-contents-item'
 
 		// 선택자 : 페이지 네이션 영역
-		, wrapPagination:'.ns-wrap-pagination'
+		// , wrapPagination:'.ns-wrap-pagination'
 		// 선택자 : 페이지
-		, itemPagination:'.ns-page-item'
+		// , itemPagination:'.ns-page-item'
 
 		// 선택자 : 이전 버튼
 		, btnPrev:'.btn-prev'
@@ -160,59 +160,71 @@ class NemoSlider{
 		let _this = this;
 
 		let stopEvent = function(){
-			_this.STOP();
+			_this.stop();
 			_log('stopEvent');
 		}
 		_this.#elementContents.removeEventListener('mouseenter', stopEvent);
 		_this.#elementContents.addEventListener('mouseenter', stopEvent);
 
 		let playEvent = function(){
-			_this.PLAY();
+			_this.play();
 			_log('playEvent');
 		}
 		_this.#elementContents.removeEventListener('mouseleave', playEvent);
 		_this.#elementContents.addEventListener('mouseleave', playEvent);
 
+		let el_btnNext = _this.#element.querySelector(_this.options.btnNext);
+		el_btnNext.removeEventListener('mouseenter', stopEvent);
+		el_btnNext.addEventListener('mouseenter', stopEvent);
+		el_btnNext.removeEventListener('mouseleave', playEvent);
+		el_btnNext.addEventListener('mouseleave', playEvent);
+		el_btnNext.addEventListener('click', function(e){
+			_log('next');
+			_this.#currentIndex++;
+			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
+			_this.motion();
+			e.preventDefault();
+		})
+
+		let el_btnPrev = _this.#element.querySelector(_this.options.btnPrev);
+		el_btnPrev.removeEventListener('mouseenter', stopEvent);
+		el_btnPrev.addEventListener('mouseenter', stopEvent);
+		el_btnPrev.removeEventListener('mouseleave', playEvent);
+		el_btnPrev.addEventListener('mouseleave', playEvent);
+		el_btnPrev.addEventListener('click', function(e){
+			_log('prev');
+			_this.#currentIndex--;
+			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
+			_this.motion();
+			e.preventDefault();
+		})
+
 		_log(`RUN ${this.#targetSelector}`);
 
-		_this.PLAY();
+		_this.play();
 	}
 
 	/**
 	 * PLAY
 	 * @returns {NemoSlider}
 	 */
-	PLAY(){
+	play(){
 		let _this = this;
 
 		if( _this.#timeInterval !== null ){
-			_this.STOP();
+			_this.stop();
 		}
 
 		if( _this.#playing === true ){
 			return this;
 		}
 
-		_log(_this.#currentIndex);
-
 		// 설정된 시간 후 index 1 추가
 		let maxIndex = _this.#elementContentsItems.length;
 		_this.#timeInterval = setInterval(function(){
 			_this.#currentIndex++;
-
-			// 아이템의 최대 인덱스 확인 후 0
-			if( _this.#currentIndex >= maxIndex ){
-				_this.#currentIndex = 0;
-			}
-
-			// item 전체 active 삭제
-			_this.#elementContentsItems.forEach(function (itemElement, itemIndex){
-				itemElement.classList.remove('ns-item-active');
-			});
-			// 현재 index item active
-			_this.activeItem(_this.#currentIndex);
-
-			_log(_this.#currentIndex);
+			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
+			_this.motion();
 		}, _this.options.delay);
 
 		_this.#playing = true;
@@ -223,7 +235,7 @@ class NemoSlider{
 	 * STOP
 	 * @returns {NemoSlider}
 	 */
-	STOP(){
+	stop(){
 		let _this = this;
 		if( _this.options.mouseEnterPlayStop === false ){
 			return _this;
@@ -231,6 +243,24 @@ class NemoSlider{
 
 		clearInterval(_this.#timeInterval);
 		_this.#playing = false;
+		return _this;
+	}
+
+	/**
+	 * 움직임
+	 */
+	motion(){
+		let _this = this;
+
+		if( _this.options.mode === 'rolling' ){
+			// item 전체 active 삭제
+			_this.#elementContentsItems.forEach(function (itemElement, itemIndex){
+				itemElement.classList.remove('ns-item-active');
+			});
+			// 현재 index item active
+			_this.activeItem(_this.#currentIndex);
+		}
+
 		return _this;
 	}
 
@@ -256,7 +286,7 @@ class NemoSlider{
 	 */
 	setOptions(_options){
 		Object.assign(this.options, _options);
-		return this.PLAY();
+		return this.play();
 	}
 
 	/**
@@ -278,7 +308,7 @@ class NemoSlider{
 		}
 
 		this.options.mode = mode;
-		return this.PLAY();
+		return this.play();
 	}
 
 	/**
@@ -321,6 +351,25 @@ class NemoSlider{
 		let el_activeItem = _this.#elementContentsItems[activeItemIndex];
 		el_activeItem.classList.add('ns-item-active');
 		return this;
+	}
+
+	/**
+	 * index 확인
+	 * @param targetIndex
+	 * @returns {number}
+	 */
+	checkIndex(targetIndex=this.#currentIndex){
+		let _this = this;
+		let maxIndex = _this.#elementContentsItems.length - 1;
+
+		if( targetIndex < 0 ){
+			targetIndex = maxIndex;
+		}
+		if( targetIndex > maxIndex ){
+			targetIndex = 0;
+		}
+
+		return targetIndex;
 	}
 }
 

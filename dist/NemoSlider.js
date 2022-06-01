@@ -75,9 +75,6 @@ var NemoSlider = function () {
     _defineProperty(this, "options", {
       mode: 'rolling',
       wrapContents: '.ns-wrap-contents',
-      itemContents: '.ns-contents-item',
-      wrapPagination: '.ns-wrap-pagination',
-      itemPagination: '.ns-page-item',
       btnPrev: '.btn-prev',
       btnNext: '.btn-next',
       delay: 2000,
@@ -127,38 +124,28 @@ var NemoSlider = function () {
   }
 
   _createClass(NemoSlider, [{
-    key: "PLAY",
-    value: function PLAY() {
+    key: "play",
+    value: function play() {
       var _this = this;
 
       if (_classPrivateFieldGet(_this, _timeInterval) !== null) {
-        _this.STOP();
+        _this.stop();
       }
 
       if (_classPrivateFieldGet(_this, _playing) === true) {
         return this;
       }
 
-      _log(_classPrivateFieldGet(_this, _currentIndex));
-
       var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length;
 
       _classPrivateFieldSet(_this, _timeInterval, setInterval(function () {
-        var _this$currentIndex, _this$currentIndex2;
+        var _this$currentIndex5, _this$currentIndex6;
 
-        _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex2 = _this$currentIndex++, _this$currentIndex)), _this$currentIndex2;
+        _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex5 = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex6 = _this$currentIndex5++, _this$currentIndex5)), _this$currentIndex6;
 
-        if (_classPrivateFieldGet(_this, _currentIndex) >= maxIndex) {
-          _classPrivateFieldSet(_this, _currentIndex, 0);
-        }
+        _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
 
-        _classPrivateFieldGet(_this, _elementContentsItems).forEach(function (itemElement, itemIndex) {
-          itemElement.classList.remove('ns-item-active');
-        });
-
-        _this.activeItem(_classPrivateFieldGet(_this, _currentIndex));
-
-        _log(_classPrivateFieldGet(_this, _currentIndex));
+        _this.motion();
       }, _this.options.delay));
 
       _classPrivateFieldSet(_this, _playing, true);
@@ -166,8 +153,8 @@ var NemoSlider = function () {
       return this;
     }
   }, {
-    key: "STOP",
-    value: function STOP() {
+    key: "stop",
+    value: function stop() {
       var _this = this;
 
       if (_this.options.mouseEnterPlayStop === false) {
@@ -177,6 +164,21 @@ var NemoSlider = function () {
       clearInterval(_classPrivateFieldGet(_this, _timeInterval));
 
       _classPrivateFieldSet(_this, _playing, false);
+
+      return _this;
+    }
+  }, {
+    key: "motion",
+    value: function motion() {
+      var _this = this;
+
+      if (_this.options.mode === 'rolling') {
+        _classPrivateFieldGet(_this, _elementContentsItems).forEach(function (itemElement, itemIndex) {
+          itemElement.classList.remove('ns-item-active');
+        });
+
+        _this.activeItem(_classPrivateFieldGet(_this, _currentIndex));
+      }
 
       return _this;
     }
@@ -197,7 +199,7 @@ var NemoSlider = function () {
     key: "setOptions",
     value: function setOptions(_options) {
       Object.assign(this.options, _options);
-      return this.PLAY();
+      return this.play();
     }
   }, {
     key: "getModeList",
@@ -214,7 +216,7 @@ var NemoSlider = function () {
       }
 
       this.options.mode = mode;
-      return this.PLAY();
+      return this.play();
     }
   }, {
     key: "getMode",
@@ -238,6 +240,25 @@ var NemoSlider = function () {
 
       el_activeItem.classList.add('ns-item-active');
       return this;
+    }
+  }, {
+    key: "checkIndex",
+    value: function checkIndex() {
+      var targetIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGet(this, _currentIndex);
+
+      var _this = this;
+
+      var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length - 1;
+
+      if (targetIndex < 0) {
+        targetIndex = maxIndex;
+      }
+
+      if (targetIndex > maxIndex) {
+        targetIndex = 0;
+      }
+
+      return targetIndex;
     }
   }], [{
     key: "encodeSelector",
@@ -280,7 +301,7 @@ function _run2() {
   var _this = this;
 
   var stopEvent = function stopEvent() {
-    _this.STOP();
+    _this.stop();
 
     _log('stopEvent');
   };
@@ -290,7 +311,7 @@ function _run2() {
   _classPrivateFieldGet(_this, _elementContents).addEventListener('mouseenter', stopEvent);
 
   var playEvent = function playEvent() {
-    _this.PLAY();
+    _this.play();
 
     _log('playEvent');
   };
@@ -299,9 +320,49 @@ function _run2() {
 
   _classPrivateFieldGet(_this, _elementContents).addEventListener('mouseleave', playEvent);
 
+  var el_btnNext = _classPrivateFieldGet(_this, _element).querySelector(_this.options.btnNext);
+
+  el_btnNext.removeEventListener('mouseenter', stopEvent);
+  el_btnNext.addEventListener('mouseenter', stopEvent);
+  el_btnNext.removeEventListener('mouseleave', playEvent);
+  el_btnNext.addEventListener('mouseleave', playEvent);
+  el_btnNext.addEventListener('click', function (e) {
+    var _this$currentIndex, _this$currentIndex2;
+
+    _log('next');
+
+    _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex2 = _this$currentIndex++, _this$currentIndex)), _this$currentIndex2;
+
+    _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
+
+    _this.motion();
+
+    e.preventDefault();
+  });
+
+  var el_btnPrev = _classPrivateFieldGet(_this, _element).querySelector(_this.options.btnPrev);
+
+  el_btnPrev.removeEventListener('mouseenter', stopEvent);
+  el_btnPrev.addEventListener('mouseenter', stopEvent);
+  el_btnPrev.removeEventListener('mouseleave', playEvent);
+  el_btnPrev.addEventListener('mouseleave', playEvent);
+  el_btnPrev.addEventListener('click', function (e) {
+    var _this$currentIndex3, _this$currentIndex4;
+
+    _log('prev');
+
+    _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex3 = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex4 = _this$currentIndex3--, _this$currentIndex3)), _this$currentIndex4;
+
+    _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
+
+    _this.motion();
+
+    e.preventDefault();
+  });
+
   _log("RUN ".concat(_classPrivateFieldGet(this, _targetSelector)));
 
-  _this.PLAY();
+  _this.play();
 }
 
 _defineProperty(NemoSlider, "version", '1.0.0');
