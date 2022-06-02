@@ -8,8 +8,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
-function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 
 function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -26,8 +24,6 @@ function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classEx
 
 function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
-function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
 
 function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
@@ -38,29 +34,15 @@ var _modeList = new WeakMap();
 
 var _targetSelector = new WeakMap();
 
-var _element = new WeakMap();
-
-var _elementContents = new WeakMap();
-
-var _elementContentsItems = new WeakMap();
-
 var _currentIndex = new WeakMap();
 
 var _timeInterval = new WeakMap();
 
 var _playing = new WeakMap();
 
-var _init = new WeakSet();
-
-var _run = new WeakSet();
-
 var NemoSlider = function () {
   function NemoSlider(targetSelector, _options) {
     _classCallCheck(this, NemoSlider);
-
-    _classPrivateMethodInitSpec(this, _run);
-
-    _classPrivateMethodInitSpec(this, _init);
 
     _classPrivateFieldInitSpec(this, _modeList, {
       writable: true,
@@ -78,23 +60,15 @@ var NemoSlider = function () {
       btnPrev: '.btn-prev',
       btnNext: '.btn-next',
       delay: 2000,
-      mouseEnterPlayStop: true
+      mouseEnterPlayStop: true,
+      appendEvent: null
     });
 
-    _classPrivateFieldInitSpec(this, _element, {
-      writable: true,
-      value: {}
-    });
+    _defineProperty(this, "element", null);
 
-    _classPrivateFieldInitSpec(this, _elementContents, {
-      writable: true,
-      value: {}
-    });
+    _defineProperty(this, "elementContents", null);
 
-    _classPrivateFieldInitSpec(this, _elementContentsItems, {
-      writable: true,
-      value: {}
-    });
+    _defineProperty(this, "elementContentsItems", null);
 
     _classPrivateFieldInitSpec(this, _currentIndex, {
       writable: true,
@@ -111,6 +85,23 @@ var NemoSlider = function () {
       value: false
     });
 
+    _defineProperty(this, "event", {
+      contents: {
+        mouseenter: null,
+        mouseleave: null
+      },
+      btnNext: {
+        mouseenter: null,
+        mouseleave: null,
+        click: null
+      },
+      btnPrev: {
+        mouseenter: null,
+        mouseleave: null,
+        click: null
+      }
+    });
+
     _classPrivateFieldSet(this, _targetSelector, targetSelector);
 
     if (_typeof(_options) == 'object') {
@@ -118,12 +109,187 @@ var NemoSlider = function () {
       this.options = Object.assign(defaultOptions, _options);
     }
 
-    _classPrivateMethodGet(this, _init, _init2).call(this);
-
-    _classPrivateMethodGet(this, _run, _run2).call(this);
+    this.init();
+    this.play();
   }
 
   _createClass(NemoSlider, [{
+    key: "init",
+    value: function init() {
+      var _this = this;
+
+      var mode = this.getMode();
+      _this.element = document.querySelector(_classPrivateFieldGet(_this, _targetSelector));
+
+      if (!_this.element) {
+        _log('ERR Target Selector check');
+      }
+
+      _this.element.classList.add("ns-mode-".concat(mode));
+
+      _this.elementContents = _this.element.querySelector(_this.options.wrapContents);
+
+      if (!_this.elementContents) {
+        _log('ERR wrapContents check');
+      }
+
+      _this.elementContents.classList.add('ns-wrap-contents');
+
+      _this.elementContentsItems = _this.element.querySelectorAll("".concat(_this.options.wrapContents, " > *"));
+
+      _this.setContentsPosition();
+
+      _this.activeItem();
+
+      _this.event.contents.mouseenter = function () {
+        _log('Event contents.mouseenter');
+
+        _this.stop();
+      };
+
+      _this.event.contents.mouseleave = function () {
+        _log('Event contents.mouseleave');
+
+        _this.play();
+      };
+
+      _this.addEventContents();
+
+      _this.event.btnNext.mouseenter = function () {
+        _log('Event btnNext.mouseenter');
+
+        _this.stop();
+      };
+
+      _this.event.btnNext.mouseleave = function () {
+        _log('Event btnNext.mouseleave');
+
+        _this.play();
+      };
+
+      _this.event.btnNext.click = function (e) {
+        var _this$currentIndex, _this$currentIndex2;
+
+        _log('Event btnNext.click');
+
+        _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex2 = _this$currentIndex++, _this$currentIndex)), _this$currentIndex2;
+
+        _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
+
+        _this.motion();
+
+        e.preventDefault();
+      };
+
+      _this.event.btnPrev.mouseenter = function () {
+        _log('Event btnPrev.mouseenter');
+
+        _this.stop();
+      };
+
+      _this.event.btnPrev.mouseleave = function () {
+        _log('Event btnPrev.mouseleave');
+
+        _this.play();
+      };
+
+      _this.event.btnPrev.click = function (e) {
+        var _this$currentIndex3, _this$currentIndex4;
+
+        _log('Event btnPrev.click');
+
+        _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex3 = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex4 = _this$currentIndex3--, _this$currentIndex3)), _this$currentIndex4;
+
+        _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
+
+        _this.motion();
+
+        e.preventDefault();
+      };
+
+      _this.addEventBtnNextAndPrev();
+
+      if (typeof _this.options.appendEvent === 'function') {
+        _this.options.appendEvent(_this);
+      }
+    }
+  }, {
+    key: "removeEventContents",
+    value: function removeEventContents() {
+      var _this = this;
+
+      for (var eventKey in _this.event.contents) {
+        _this.elementContents.removeEventListener("".concat(eventKey), _this.event.contents[eventKey]);
+      }
+
+      return _this;
+    }
+  }, {
+    key: "addEventContents",
+    value: function addEventContents(eventFunc) {
+      var _this = this;
+
+      if (typeof eventFunc === 'function') {
+        eventFunc(_this);
+      }
+
+      for (var eventKey in _this.event.contents) {
+        _this.elementContents.addEventListener("".concat(eventKey), _this.event.contents[eventKey]);
+      }
+
+      return _this;
+    }
+  }, {
+    key: "removeEventBtnNextAndPrev",
+    value: function removeEventBtnNextAndPrev() {
+      var _this = this;
+
+      var el_btnNext = _this.element.querySelector(_this.options.btnNext);
+
+      var el_btnPrev = _this.element.querySelector(_this.options.btnPrev);
+
+      if (!el_btnNext || !el_btnPrev) {
+        return _this;
+      }
+
+      for (var eventKey in _this.event.btnNext) {
+        el_btnNext.removeEventListener("".concat(eventKey), _this.event.btnNext[eventKey]);
+      }
+
+      for (var _eventKey in _this.event.btnPrev) {
+        el_btnPrev.removeEventListener("".concat(_eventKey), _this.event.btnPrev[_eventKey]);
+      }
+
+      return _this;
+    }
+  }, {
+    key: "addEventBtnNextAndPrev",
+    value: function addEventBtnNextAndPrev(eventFunc) {
+      var _this = this;
+
+      var el_btnNext = _this.element.querySelector(_this.options.btnNext);
+
+      var el_btnPrev = _this.element.querySelector(_this.options.btnPrev);
+
+      if (!el_btnNext || !el_btnPrev) {
+        return _this;
+      }
+
+      if (typeof eventFunc === 'function') {
+        eventFunc(_this);
+      }
+
+      for (var eventKey in _this.event.btnNext) {
+        el_btnNext.addEventListener("".concat(eventKey), _this.event.btnNext[eventKey]);
+      }
+
+      for (var _eventKey2 in _this.event.btnPrev) {
+        el_btnPrev.addEventListener("".concat(_eventKey2), _this.event.btnPrev[_eventKey2]);
+      }
+
+      return _this;
+    }
+  }, {
     key: "play",
     value: function play() {
       var _this = this;
@@ -135,8 +301,6 @@ var NemoSlider = function () {
       if (_classPrivateFieldGet(_this, _playing) === true) {
         return this;
       }
-
-      var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length;
 
       _classPrivateFieldSet(_this, _timeInterval, setInterval(function () {
         var _this$currentIndex5, _this$currentIndex6;
@@ -157,15 +321,11 @@ var NemoSlider = function () {
     value: function stop() {
       var _this = this;
 
-      if (_this.options.mouseEnterPlayStop === false) {
-        return _this;
+      if (_this.options.mouseEnterPlayStop === true) {
+        clearInterval(_classPrivateFieldGet(_this, _timeInterval));
+
+        _classPrivateFieldSet(_this, _playing, false);
       }
-
-      clearInterval(_classPrivateFieldGet(_this, _timeInterval));
-
-      _classPrivateFieldSet(_this, _playing, false);
-
-      return _this;
     }
   }, {
     key: "motion",
@@ -173,27 +333,22 @@ var NemoSlider = function () {
       var _this = this;
 
       if (_this.options.mode === 'rolling') {
-        _classPrivateFieldGet(_this, _elementContentsItems).forEach(function (itemElement, itemIndex) {
+        _this.elementContentsItems.forEach(function (itemElement, itemIndex) {
           itemElement.classList.remove('ns-item-active');
         });
 
         _this.activeItem(_classPrivateFieldGet(_this, _currentIndex));
       }
-
-      return _this;
     }
   }, {
     key: "setContentsPosition",
     value: function setContentsPosition() {
-      var el_contents = _classPrivateFieldGet(this, _elementContents);
-
+      var el_contents = this.elementContents;
       var el_style = window.getComputedStyle(el_contents);
 
       if (el_style.position === 'static') {
         el_contents.style.position = 'relative';
       }
-
-      return this;
     }
   }, {
     key: "setOptions",
@@ -236,10 +391,8 @@ var NemoSlider = function () {
 
       var _this = this;
 
-      var el_activeItem = _classPrivateFieldGet(_this, _elementContentsItems)[activeItemIndex];
-
+      var el_activeItem = _this.elementContentsItems[activeItemIndex];
       el_activeItem.classList.add('ns-item-active');
-      return this;
     }
   }, {
     key: "checkIndex",
@@ -248,7 +401,7 @@ var NemoSlider = function () {
 
       var _this = this;
 
-      var maxIndex = _classPrivateFieldGet(_this, _elementContentsItems).length - 1;
+      var maxIndex = _this.elementContentsItems.length - 1;
 
       if (targetIndex < 0) {
         targetIndex = maxIndex;
@@ -276,94 +429,6 @@ var NemoSlider = function () {
 
   return NemoSlider;
 }();
-
-function _init2() {
-  var _this = this;
-
-  var mode = this.getMode();
-
-  _classPrivateFieldSet(_this, _element, document.querySelector(_classPrivateFieldGet(_this, _targetSelector)));
-
-  _classPrivateFieldGet(_this, _element).classList.add("ns-mode-".concat(mode));
-
-  _classPrivateFieldSet(_this, _elementContents, _classPrivateFieldGet(_this, _element).querySelector(_this.options.wrapContents));
-
-  _classPrivateFieldGet(_this, _elementContents).classList.add('ns-wrap-contents');
-
-  _classPrivateFieldSet(_this, _elementContentsItems, _classPrivateFieldGet(_this, _element).querySelectorAll("".concat(_this.options.wrapContents, " > *")));
-
-  _this.setContentsPosition();
-
-  _this.activeItem();
-}
-
-function _run2() {
-  var _this = this;
-
-  var stopEvent = function stopEvent() {
-    _this.stop();
-
-    _log('stopEvent');
-  };
-
-  _classPrivateFieldGet(_this, _elementContents).removeEventListener('mouseenter', stopEvent);
-
-  _classPrivateFieldGet(_this, _elementContents).addEventListener('mouseenter', stopEvent);
-
-  var playEvent = function playEvent() {
-    _this.play();
-
-    _log('playEvent');
-  };
-
-  _classPrivateFieldGet(_this, _elementContents).removeEventListener('mouseleave', playEvent);
-
-  _classPrivateFieldGet(_this, _elementContents).addEventListener('mouseleave', playEvent);
-
-  var el_btnNext = _classPrivateFieldGet(_this, _element).querySelector(_this.options.btnNext);
-
-  el_btnNext.removeEventListener('mouseenter', stopEvent);
-  el_btnNext.addEventListener('mouseenter', stopEvent);
-  el_btnNext.removeEventListener('mouseleave', playEvent);
-  el_btnNext.addEventListener('mouseleave', playEvent);
-  el_btnNext.addEventListener('click', function (e) {
-    var _this$currentIndex, _this$currentIndex2;
-
-    _log('next');
-
-    _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex2 = _this$currentIndex++, _this$currentIndex)), _this$currentIndex2;
-
-    _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
-
-    _this.motion();
-
-    e.preventDefault();
-  });
-
-  var el_btnPrev = _classPrivateFieldGet(_this, _element).querySelector(_this.options.btnPrev);
-
-  el_btnPrev.removeEventListener('mouseenter', stopEvent);
-  el_btnPrev.addEventListener('mouseenter', stopEvent);
-  el_btnPrev.removeEventListener('mouseleave', playEvent);
-  el_btnPrev.addEventListener('mouseleave', playEvent);
-  el_btnPrev.addEventListener('click', function (e) {
-    var _this$currentIndex3, _this$currentIndex4;
-
-    _log('prev');
-
-    _classPrivateFieldSet(_this, _currentIndex, (_this$currentIndex3 = _classPrivateFieldGet(_this, _currentIndex), _this$currentIndex4 = _this$currentIndex3--, _this$currentIndex3)), _this$currentIndex4;
-
-    _classPrivateFieldSet(_this, _currentIndex, _this.checkIndex(_classPrivateFieldGet(_this, _currentIndex)));
-
-    _this.motion();
-
-    e.preventDefault();
-  });
-
-  _log("RUN ".concat(_classPrivateFieldGet(this, _targetSelector)));
-
-  _this.play();
-}
 
 _defineProperty(NemoSlider, "version", '1.0.0');
 

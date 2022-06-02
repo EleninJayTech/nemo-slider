@@ -32,7 +32,7 @@ class NemoSlider{
 
 	/**
 	 * 기본 옵션
-	 * @type {{mode: string, delay: number, itemPagination: string, btnPrev: string, btnNext: string, itemContents: string, wrapContents: string, wrapPagination: string}}
+	 * @type {{mode: string, delay: number, btnPrev: string, mouseEnterPlayStop: boolean, btnNext: string, wrapContents: string}}
 	 */
 	options={
 		// 기능 모드
@@ -58,25 +58,27 @@ class NemoSlider{
 		
 		// 마우스 enter 시 동작 멈춤
 		, mouseEnterPlayStop:true
+
+		, appendEvent:null
 	};
 
 	/**
 	 * 선택된 대상 엘리먼트 변수 기록
 	 * @type {{}}
 	 */
-	#element={};
+	element=null;
 
 	/**
 	 * element contents wrap
 	 * @type {{}}
 	 */
-	#elementContents={};
+	elementContents=null;
 
 	/**
 	 * element contents item
 	 * @type {{}}
 	 */
-	#elementContentsItems={};
+	elementContentsItems=null;
 
 	/**
 	 * 현재 표시할 아이템 index
@@ -110,6 +112,23 @@ class NemoSlider{
 		')':'_0_'
 	};
 
+	event={
+		contents:{
+			mouseenter:null
+			, mouseleave:null
+		},
+		btnNext:{
+			mouseenter:null
+			, mouseleave:null
+			, click:null
+		},
+		btnPrev:{
+			mouseenter:null
+			, mouseleave:null
+			, click:null
+		}
+	};
+
 	/**
 	 * 생성자
 	 * @param {string} targetSelector
@@ -124,84 +143,177 @@ class NemoSlider{
 			this.options = Object.assign(defaultOptions, _options);
 		}
 
-		this.#init();
-		this.#run();
+		this.init();
+		this.play();
 	}
 
 	/**
 	 * 초기 설정
 	 */
-	#init(){
+	init(){
 		let _this = this;
 		let mode = this.getMode();
 
-		_this.#element = document.querySelector(_this.#targetSelector);
+		_this.element = document.querySelector(_this.#targetSelector);
+		if( !_this.element ){
+			_log('ERR Target Selector check');
+		}
 
 		// 현재 영역에 모드 class 추가
-		_this.#element.classList.add(`ns-mode-${mode}`);
+		_this.element.classList.add(`ns-mode-${mode}`);
 
 		// 콘텐츠 영역
-		_this.#elementContents = _this.#element.querySelector(_this.options.wrapContents);
-		_this.#elementContents.classList.add('ns-wrap-contents');
+		_this.elementContents = _this.element.querySelector(_this.options.wrapContents);
+		if( !_this.elementContents ){
+			_log('ERR wrapContents check');
+		}
+		_this.elementContents.classList.add('ns-wrap-contents');
 
 		// 콘텐츠 아이템
-		_this.#elementContentsItems = _this.#element.querySelectorAll(`${_this.options.wrapContents} > *`);
+		_this.elementContentsItems = _this.element.querySelectorAll(`${_this.options.wrapContents} > *`);
 
 		_this.setContentsPosition();
 
 		// current index 아이템에 ns-item-active 추가
 		_this.activeItem();
-	}
 
-	/**
-	 * 실행
-	 */
-	#run(){
-		let _this = this;
-
-		let stopEvent = function(){
+		// 콘텐츠 영역 이벤트
+		_this.event.contents.mouseenter = function(){
+			_log('Event contents.mouseenter');
 			_this.stop();
-			_log('stopEvent');
 		}
-		_this.#elementContents.removeEventListener('mouseenter', stopEvent);
-		_this.#elementContents.addEventListener('mouseenter', stopEvent);
-
-		let playEvent = function(){
+		_this.event.contents.mouseleave = function(){
+			_log('Event contents.mouseleave');
 			_this.play();
-			_log('playEvent');
 		}
-		_this.#elementContents.removeEventListener('mouseleave', playEvent);
-		_this.#elementContents.addEventListener('mouseleave', playEvent);
+		_this.addEventContents();
 
-		let el_btnNext = _this.#element.querySelector(_this.options.btnNext);
-		el_btnNext.removeEventListener('mouseenter', stopEvent);
-		el_btnNext.addEventListener('mouseenter', stopEvent);
-		el_btnNext.removeEventListener('mouseleave', playEvent);
-		el_btnNext.addEventListener('mouseleave', playEvent);
-		el_btnNext.addEventListener('click', function(e){
-			_log('next');
+		// 다음 버튼 이벤트
+		_this.event.btnNext.mouseenter = function(){
+			_log('Event btnNext.mouseenter');
+			_this.stop();
+		}
+		_this.event.btnNext.mouseleave = function(){
+			_log('Event btnNext.mouseleave');
+			_this.play();
+		}
+		_this.event.btnNext.click = function(e){
+			_log('Event btnNext.click');
 			_this.#currentIndex++;
 			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
 			_this.motion();
 			e.preventDefault();
-		})
-
-		let el_btnPrev = _this.#element.querySelector(_this.options.btnPrev);
-		el_btnPrev.removeEventListener('mouseenter', stopEvent);
-		el_btnPrev.addEventListener('mouseenter', stopEvent);
-		el_btnPrev.removeEventListener('mouseleave', playEvent);
-		el_btnPrev.addEventListener('mouseleave', playEvent);
-		el_btnPrev.addEventListener('click', function(e){
-			_log('prev');
+		}
+		// 이전 버튼 이벤트
+		_this.event.btnPrev.mouseenter = function(){
+			_log('Event btnPrev.mouseenter');
+			_this.stop();
+		}
+		_this.event.btnPrev.mouseleave = function(){
+			_log('Event btnPrev.mouseleave');
+			_this.play();
+		}
+		_this.event.btnPrev.click = function(e){
+			_log('Event btnPrev.click');
 			_this.#currentIndex--;
 			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
 			_this.motion();
 			e.preventDefault();
-		})
+		}
+		_this.addEventBtnNextAndPrev();
+		
+		// 추가 커스텀 이벤트
+		if( typeof _this.options.appendEvent === 'function' ){
+			_this.options.appendEvent(_this);
+		}
+	}
 
-		_log(`RUN ${this.#targetSelector}`);
+	/**
+	 * 기존 이벤트 제거 콘텐츠 영역
+	 * @returns {NemoSlider}
+	 */
+	removeEventContents(){
+		let _this = this;
 
-		_this.play();
+		for(let eventKey in _this.event.contents){
+			_this.elementContents.removeEventListener(`${eventKey}`, _this.event.contents[eventKey]);
+		}
+
+		return _this;
+	}
+
+	/**
+	 * 이벤트 추가 콘텐츠 영역
+	 * @param {function} [eventFunc]
+	 * @returns {NemoSlider}
+	 */
+	addEventContents(eventFunc){
+		let _this = this;
+
+		if( typeof eventFunc === 'function' ){
+			eventFunc(_this);
+		}
+
+		for(let eventKey in _this.event.contents){
+			_this.elementContents.addEventListener(`${eventKey}`, _this.event.contents[eventKey]);
+		}
+
+		return _this;
+	}
+
+	/**
+	 * 기존 이벤트 제거 이전 다음 버튼
+	 * @returns {NemoSlider}
+	 */
+	removeEventBtnNextAndPrev(){
+		let _this = this;
+
+		let el_btnNext = _this.element.querySelector(_this.options.btnNext);
+		let el_btnPrev = _this.element.querySelector(_this.options.btnPrev);
+
+		if( !el_btnNext || !el_btnPrev ){
+			return _this;
+		}
+
+		for(let eventKey in _this.event.btnNext){
+			el_btnNext.removeEventListener(`${eventKey}`, _this.event.btnNext[eventKey]);
+		}
+
+		for(let eventKey in _this.event.btnPrev){
+			el_btnPrev.removeEventListener(`${eventKey}`, _this.event.btnPrev[eventKey]);
+		}
+
+		return _this;
+	}
+
+	/**
+	 * 이벤트 추가 이전 다음 버튼
+	 * @param {function} [eventFunc]
+	 * @returns {NemoSlider}
+	 */
+	addEventBtnNextAndPrev(eventFunc){
+		let _this = this;
+
+		let el_btnNext = _this.element.querySelector(_this.options.btnNext);
+		let el_btnPrev = _this.element.querySelector(_this.options.btnPrev);
+
+		if( !el_btnNext || !el_btnPrev ){
+			return _this;
+		}
+
+		if( typeof eventFunc === 'function' ){
+			eventFunc(_this);
+		}
+
+		for(let eventKey in _this.event.btnNext){
+			el_btnNext.addEventListener(`${eventKey}`, _this.event.btnNext[eventKey]);
+		}
+
+		for(let eventKey in _this.event.btnPrev){
+			el_btnPrev.addEventListener(`${eventKey}`, _this.event.btnPrev[eventKey]);
+		}
+
+		return _this;
 	}
 
 	/**
@@ -220,7 +332,6 @@ class NemoSlider{
 		}
 
 		// 설정된 시간 후 index 1 추가
-		let maxIndex = _this.#elementContentsItems.length;
 		_this.#timeInterval = setInterval(function(){
 			_this.#currentIndex++;
 			_this.#currentIndex = _this.checkIndex(_this.#currentIndex);
@@ -233,17 +344,13 @@ class NemoSlider{
 
 	/**
 	 * STOP
-	 * @returns {NemoSlider}
 	 */
 	stop(){
 		let _this = this;
-		if( _this.options.mouseEnterPlayStop === false ){
-			return _this;
+		if( _this.options.mouseEnterPlayStop === true ){
+			clearInterval(_this.#timeInterval);
+			_this.#playing = false;
 		}
-
-		clearInterval(_this.#timeInterval);
-		_this.#playing = false;
-		return _this;
 	}
 
 	/**
@@ -254,29 +361,24 @@ class NemoSlider{
 
 		if( _this.options.mode === 'rolling' ){
 			// item 전체 active 삭제
-			_this.#elementContentsItems.forEach(function (itemElement, itemIndex){
+			_this.elementContentsItems.forEach(function (itemElement, itemIndex){
 				itemElement.classList.remove('ns-item-active');
 			});
 			// 현재 index item active
 			_this.activeItem(_this.#currentIndex);
 		}
-
-		return _this;
 	}
 
 	/**
 	 * 콘텐츠 영역이 static 일 경우 relative 로 변경
-	 * @returns {NemoSlider}
 	 */
 	setContentsPosition(){
-		let el_contents = this.#elementContents;
+		let el_contents = this.elementContents;
 		let el_style = window.getComputedStyle(el_contents);
 
 		if( el_style.position === 'static' ){
 			el_contents.style.position = 'relative';
 		}
-
-		return this;
 	}
 
 	/**
@@ -348,9 +450,8 @@ class NemoSlider{
 	 */
 	activeItem(activeItemIndex=this.#currentIndex){
 		let _this = this;
-		let el_activeItem = _this.#elementContentsItems[activeItemIndex];
+		let el_activeItem = _this.elementContentsItems[activeItemIndex];
 		el_activeItem.classList.add('ns-item-active');
-		return this;
 	}
 
 	/**
@@ -360,7 +461,7 @@ class NemoSlider{
 	 */
 	checkIndex(targetIndex=this.#currentIndex){
 		let _this = this;
-		let maxIndex = _this.#elementContentsItems.length - 1;
+		let maxIndex = _this.elementContentsItems.length - 1;
 
 		if( targetIndex < 0 ){
 			targetIndex = maxIndex;

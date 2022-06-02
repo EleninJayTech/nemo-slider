@@ -55,7 +55,24 @@
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
 			NemoSlider.ENVIRONMENT = 'development';
-			NS(".typeA", {delay:1000, mouseEnterPlayStop:true});
+			let nemo = NS(".typeA", {delay:1000, mouseEnterPlayStop:true, appendEvent:function(el_this){
+				el_this.elementContents.addEventListener('click', function(e){
+					console.log('커스텀 이벤트 추가');
+					e.preventDefault();
+				});
+			}});
+			// nemo.removeEventContents();
+			// nemo.event.contents.mouseenter = function(){
+			// 	_log('add Event');
+			// 	_log('new Event');
+			// }
+			// nemo.addEventContents();
+
+			// nemo.addEventContents(function(el_this){
+			// 	el_this.event.contents.mouseenter = function(){
+			// 		_log('add event');
+			// 	}
+			// });
 		});
 	</script>
 </body>
