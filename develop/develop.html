@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<title>Document</title>
+
+	<link rel="stylesheet" href="../src/NemoSlider.css">
+	<script src="../src/NemoSlider.js" defer></script>
+
+	<style>
+		.ns-wrap-contents{
+			display: inline-block;
+			width: 400px;
+			height: 250px;
+		}
+
+		.btn_wrap{
+			margin-top: 50px;
+		}
+	</style>
+</head>
+<body>
+	<div class="typeA ns-mode-rolling">
+		<div class="ns-wrap-contents">
+			<div class="ns-item-active"><img src="../examples/images/type_a/001.png" alt="001"></div>
+			<div><img src="../examples/images/type_a/002.png" alt="002"></div>
+			<div><img src="../examples/images/type_a/003.png" alt="003"></div>
+			<div><img src="../examples/images/type_a/004.png" alt="004"></div>
+			<div><img src="../examples/images/type_a/005.png" alt="005"></div>
+			<div><img src="../examples/images/type_a/006.png" alt="006"></div>
+		</div>
+		<div class="btn_wrap">
+			<a href="#" class="btn-prev">◀</a>
+			<a href="#" class="btn-next">▶</a>
+		</div>
+	</div>
+
+	<!--
+	<div class="typeA">
+		<div class="ns-wrap-contents">
+			<div class="item-active"><img src="../examples/images/type_a/001.png" alt="001"></div>
+			<div><img src="../examples/images/type_a/002.png" alt="002"></div>
+			<div><img src="../examples/images/type_a/003.png" alt="003"></div>
+			<div><img src="../examples/images/type_a/004.png" alt="004"></div>
+			<div><img src="../examples/images/type_a/005.png" alt="005"></div>
+			<div><img src="../examples/images/type_a/006.png" alt="006"></div>
+		</div>
+	</div>
+	-->
+
+	<script defer>
+		window.addEventListener('DOMContentLoaded', (event) => {
+			NemoSlider.ENVIRONMENT = 'development';
+			let nemo = NS(".typeA", {delay:1000, mouseEnterPlayStop:true, appendEvent:function(el_this){
+				el_this.elementContents.addEventListener('click', function(e){
+					console.log('커스텀 이벤트 추가');
+					e.preventDefault();
+				});
+			}});
+			// nemo.removeEventContents();
+			// nemo.event.contents.mouseenter = function(){
+			// 	_log('add Event');
+			// 	_log('new Event');
+			// }
+			// nemo.addEventContents();
+
+			// nemo.addEventContents(function(el_this){
+			// 	el_this.event.contents.mouseenter = function(){
+			// 		_log('add event');
+			// 	}
+			// });
+		});
+	</script>
+</body>
+</html>
