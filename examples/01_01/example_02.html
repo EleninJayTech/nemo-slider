@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<title>네모 슬라이더 예제</title>
+
+	<link rel="stylesheet" href="../../src/NemoSlider.css">
+	<script src="../../src/NemoSlider.js" defer></script>
+
+	<style>
+		.ns-wrap-contents{
+			display: inline-block;
+			width: 400px;
+			height: 250px;
+		}
+
+		.btn_wrap{
+			margin-top: 50px;
+		}
+	</style>
+</head>
+<body>
+	<h3>옵션 변경 방법</h3>
+	<h4>예시) 변경 시간 수정</h4>
+	<div class="typeA">
+		<div class="ns-wrap-contents">
+			<div><img src="../images/type_a/001.png" alt="001"></div>
+			<div><img src="../images/type_a/002.png" alt="002"></div>
+			<div><img src="../images/type_a/003.png" alt="003"></div>
+			<div><img src="../images/type_a/004.png" alt="004"></div>
+			<div><img src="../images/type_a/005.png" alt="005"></div>
+			<div><img src="../images/type_a/006.png" alt="006"></div>
+		</div>
+	</div>
+
+	<script defer>
+		window.addEventListener('DOMContentLoaded', (event) => {
+			// 방법 1
+			NS(".typeA", {delay:100});
+
+			// 방법 2
+			// NS(".typeA").setOptions({delay:100});
+
+			// 방법 3
+			// let nemo = NS(".typeA");
+			// nemo.options.delay = 100;
+			// nemo.play();
+		});
+	</script>
+</body>
+</html>
