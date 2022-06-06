@@ -57,8 +57,8 @@ var NemoSlider = function () {
     _defineProperty(this, "options", {
       mode: 'rolling',
       wrapContents: '.ns-wrap-contents',
-      btnPrev: '.btn-prev',
-      btnNext: '.btn-next',
+      btnPrev: '.ns-btn-prev',
+      btnNext: '.ns-btn-next',
       delay: 2000,
       mouseEnterPlayStop: true,
       appendEvent: null

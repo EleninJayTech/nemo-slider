@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<title>네모 슬라이더 예제</title>
+
+	<link rel="stylesheet" href="../../src/NemoSlider.css">
+	<script src="../../src/NemoSlider.js" defer></script>
+
+	<style>
+		.ns-wrap-contents{
+			display: inline-block;
+			width: 400px;
+			height: 250px;
+		}
+
+		.btn_wrap{
+			margin-top: 50px;
+		}
+	</style>
+</head>
+<body>
+	<h3>NS 함수로 실행 되어 기록된 instance 목록</h3>
+
+	<div class="typeA">
+		<div class="ns-wrap-contents">
+			<div><img src="../images/type_a/001.png" alt="001"></div>
+			<div><img src="../images/type_a/002.png" alt="002"></div>
+			<div><img src="../images/type_a/003.png" alt="003"></div>
+			<div><img src="../images/type_a/004.png" alt="004"></div>
+			<div><img src="../images/type_a/005.png" alt="005"></div>
+			<div><img src="../images/type_a/006.png" alt="006"></div>
+		</div>
+	</div>
+
+	<script defer>
+		window.addEventListener('DOMContentLoaded', (event) => {
+			NS(".typeA");
+
+			let ns_ins = NemoSlider.instance;
+			console.log(ns_ins);
+		});
+	</script>
+</body>
+</html>

@@ -40,7 +40,7 @@ class NemoSlider{
 
 		// 선택자 : 메인 콘텐츠 영역
 		, wrapContents:'.ns-wrap-contents'
-		// 선택자 : 메인 콘텐츠
+		// 선택자 : 메인 콘텐츠 아이템
 		// , itemContents:'.ns-contents-item'
 
 		// 선택자 : 페이지 네이션 영역
@@ -49,9 +49,9 @@ class NemoSlider{
 		// , itemPagination:'.ns-page-item'
 
 		// 선택자 : 이전 버튼
-		, btnPrev:'.btn-prev'
+		, btnPrev:'.ns-btn-prev'
 		// 선택자 : 다음 버튼
-		, btnNext:'.btn-next'
+		, btnNext:'.ns-btn-next'
 
 		// 변경되는 시간 1,000 = 1초
 		, delay:2000
@@ -112,6 +112,10 @@ class NemoSlider{
 		')':'_0_'
 	};
 
+	/**
+	 * 적용 이벤트 변수
+	 * @type {{contents: {mouseenter: null, mouseleave: null}, btnPrev: {mouseenter: null, mouseleave: null, click: null}, btnNext: {mouseenter: null, mouseleave: null, click: null}}}
+	 */
 	event={
 		contents:{
 			mouseenter:null
