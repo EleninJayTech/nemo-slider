@@ -61,7 +61,7 @@ var NemoSlider = function () {
       btnNext: '.ns-btn-next',
       delay: 2000,
       mouseEnterPlayStop: true,
-      appendEvent: null
+      appendInit: null
     });
 
     _defineProperty(this, "element", null);
@@ -209,19 +209,34 @@ var NemoSlider = function () {
 
       _this.addEventBtnNextAndPrev();
 
-      if (typeof _this.options.appendEvent === 'function') {
-        _this.options.appendEvent(_this);
+      if (typeof _this.options.appendInit === 'function') {
+        _this.options.appendInit(_this);
       }
     }
   }, {
     key: "removeEventContents",
     value: function removeEventContents() {
-      var _this = this;
-
-      for (var eventKey in _this.event.contents) {
-        _this.elementContents.removeEventListener("".concat(eventKey), _this.event.contents[eventKey]);
+      for (var _len = arguments.length, targetEvent = new Array(_len), _key = 0; _key < _len; _key++) {
+        targetEvent[_key] = arguments[_key];
       }
 
+      var _this = this;
+
+      var removeEventList = [];
+
+      if (_typeof(targetEvent) == 'object' && targetEvent.length > 0) {
+        removeEventList = targetEvent;
+      } else {
+        removeEventList = Object.keys(_this.event.contents);
+      }
+
+      removeEventList.forEach(function (_event, _idx) {
+        _log("remove event contents ".concat(_event));
+
+        _this.elementContents.removeEventListener("".concat(_event), _this.event.contents[_event]);
+
+        _this.event.contents[_event] = null;
+      });
       return _this;
     }
   }, {
@@ -242,6 +257,10 @@ var NemoSlider = function () {
   }, {
     key: "removeEventBtnNextAndPrev",
     value: function removeEventBtnNextAndPrev() {
+      for (var _len2 = arguments.length, targetEvent = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        targetEvent[_key2] = arguments[_key2];
+      }
+
       var _this = this;
 
       var el_btnNext = _this.element.querySelector(_this.options.btnNext);
@@ -252,14 +271,28 @@ var NemoSlider = function () {
         return _this;
       }
 
-      for (var eventKey in _this.event.btnNext) {
-        el_btnNext.removeEventListener("".concat(eventKey), _this.event.btnNext[eventKey]);
+      var removeBtnNextEventList = [];
+      var removeBtnPrevEventList = [];
+
+      if (_typeof(targetEvent) == 'object' && targetEvent.length > 0) {
+        removeBtnNextEventList = removeBtnPrevEventList = targetEvent;
+      } else {
+        removeBtnNextEventList = Object.keys(_this.event.btnNext);
+        removeBtnPrevEventList = Object.keys(_this.event.btnPrev);
       }
 
-      for (var _eventKey in _this.event.btnPrev) {
-        el_btnPrev.removeEventListener("".concat(_eventKey), _this.event.btnPrev[_eventKey]);
-      }
+      removeBtnNextEventList.forEach(function (_event, _idx) {
+        _log("remove event btnNext ".concat(_event));
 
+        el_btnNext.removeEventListener("".concat(_event), _this.event.btnNext[_event]);
+        _this.event.btnNext[_event] = null;
+      });
+      removeBtnPrevEventList.forEach(function (_event, _idx) {
+        _log("remove event btnPrev ".concat(_event));
+
+        el_btnPrev.removeEventListener("".concat(_event), _this.event.btnPrev[_event]);
+        _this.event.btnPrev[_event] = null;
+      });
       return _this;
     }
   }, {
@@ -283,8 +316,8 @@ var NemoSlider = function () {
         el_btnNext.addEventListener("".concat(eventKey), _this.event.btnNext[eventKey]);
       }
 
-      for (var _eventKey2 in _this.event.btnPrev) {
-        el_btnPrev.addEventListener("".concat(_eventKey2), _this.event.btnPrev[_eventKey2]);
+      for (var _eventKey in _this.event.btnPrev) {
+        el_btnPrev.addEventListener("".concat(_eventKey), _this.event.btnPrev[_eventKey]);
       }
 
       return _this;
