@@ -59,7 +59,7 @@ class NemoSlider{
 		// 마우스 enter 시 동작 멈춤
 		, mouseEnterPlayStop:true
 
-		, appendEvent:null
+		, appendInit:null
 	};
 
 	/**
@@ -226,22 +226,34 @@ class NemoSlider{
 		}
 		_this.addEventBtnNextAndPrev();
 		
-		// 추가 커스텀 이벤트
-		if( typeof _this.options.appendEvent === 'function' ){
-			_this.options.appendEvent(_this);
+		// 추가 커스텀 초기설정
+		if( typeof _this.options.appendInit === 'function' ){
+			_this.options.appendInit(_this);
 		}
 	}
 
 	/**
 	 * 기존 이벤트 제거 콘텐츠 영역
+	 * @param targetEvent
 	 * @returns {NemoSlider}
 	 */
-	removeEventContents(){
+	removeEventContents(...targetEvent){
 		let _this = this;
+		let removeEventList = [];
 
-		for(let eventKey in _this.event.contents){
-			_this.elementContents.removeEventListener(`${eventKey}`, _this.event.contents[eventKey]);
+		// 인자로 받아온 대상만 제거
+		if( typeof targetEvent == 'object' && targetEvent.length > 0 ){
+			removeEventList = targetEvent;
+		} else {
+			// 전체 제거
+			removeEventList = Object.keys(_this.event.contents);
 		}
+
+		removeEventList.forEach(function(_event, _idx){
+			_log(`remove event contents ${_event}`);
+			_this.elementContents.removeEventListener(`${_event}`, _this.event.contents[_event]);
+			_this.event.contents[_event] = null;
+		});
 
 		return _this;
 	}
@@ -267,9 +279,10 @@ class NemoSlider{
 
 	/**
 	 * 기존 이벤트 제거 이전 다음 버튼
+	 * @param targetEvent
 	 * @returns {NemoSlider}
 	 */
-	removeEventBtnNextAndPrev(){
+	removeEventBtnNextAndPrev(...targetEvent){
 		let _this = this;
 
 		let el_btnNext = _this.element.querySelector(_this.options.btnNext);
@@ -279,13 +292,29 @@ class NemoSlider{
 			return _this;
 		}
 
-		for(let eventKey in _this.event.btnNext){
-			el_btnNext.removeEventListener(`${eventKey}`, _this.event.btnNext[eventKey]);
+		let removeBtnNextEventList = [];
+		let removeBtnPrevEventList = [];
+
+		// 인자로 받아온 대상만 제거
+		if( typeof targetEvent == 'object' && targetEvent.length > 0 ){
+			removeBtnNextEventList = removeBtnPrevEventList = targetEvent;
+		} else {
+			// 전체 제거
+			removeBtnNextEventList = Object.keys(_this.event.btnNext);
+			removeBtnPrevEventList = Object.keys(_this.event.btnPrev);
 		}
 
-		for(let eventKey in _this.event.btnPrev){
-			el_btnPrev.removeEventListener(`${eventKey}`, _this.event.btnPrev[eventKey]);
-		}
+		removeBtnNextEventList.forEach(function(_event, _idx){
+			_log(`remove event btnNext ${_event}`);
+			el_btnNext.removeEventListener(`${_event}`, _this.event.btnNext[_event]);
+			_this.event.btnNext[_event] = null;
+		});
+
+		removeBtnPrevEventList.forEach(function(_event, _idx){
+			_log(`remove event btnPrev ${_event}`);
+			el_btnPrev.removeEventListener(`${_event}`, _this.event.btnPrev[_event]);
+			_this.event.btnPrev[_event] = null;
+		});
 
 		return _this;
 	}

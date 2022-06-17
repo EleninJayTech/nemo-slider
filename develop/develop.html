@@ -61,18 +61,19 @@
 					e.preventDefault();
 				});
 			}});
-			// nemo.removeEventContents();
-			// nemo.event.contents.mouseenter = function(){
-			// 	_log('add Event');
-			// 	_log('new Event');
-			// }
-			// nemo.addEventContents();
 
-			// nemo.addEventContents(function(el_this){
-			// 	el_this.event.contents.mouseenter = function(){
-			// 		_log('add event');
-			// 	}
-			// });
+			nemo.removeEventContents();
+			nemo.event.contents.mouseenter = function(){
+				_log('add Event');
+				_log('new Event');
+			}
+			nemo.addEventContents();
+
+			nemo.addEventContents(function(el_this){
+				el_this.event.contents.mouseenter = function(){
+					_log('add event');
+				}
+			});
 		});
 	</script>
 </body>
