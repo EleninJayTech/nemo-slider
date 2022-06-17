@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-	<h3>NS 함수로 실행 된 instance 목록</h3>
+	<h3>이전 다음 버튼에 이벤트 추가 하기</h3>
 
 	<div class="typeA">
 		<div class="ns-wrap-contents">
@@ -35,16 +35,41 @@
 			<div><img src="../images/type_a/005.png" alt="005"></div>
 			<div><img src="../images/type_a/006.png" alt="006"></div>
 		</div>
+		<div class="btn_wrap">
+			<a href="#" class="ns-btn-prev">◀</a>
+			<a href="#" class="ns-btn-next">▶</a>
+		</div>
 	</div>
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			NS(".typeA");
+			NemoSlider.ENVIRONMENT = 'development';
+			// el_this 인자는 인스턴스화 된 NemoSlider 객체를 반환 합니다. (내부 에서의 this)
 
-			let ns_ins = NemoSlider.instance;
+			// 방법 1
+			NS(".typeA").addEventBtnNextAndPrev(function(el_this){
+				// 마우스 오버 이벤트 추가
+				el_this.event.btnNext.click = function(){
+					console.log('기본 이벤트에 추가 click');
+				}
 
-			// object key 는 선택자를 NemoSlider.encodeSelector 사용한 값
-			console.log(ns_ins);
+				// 마우스 아웃 이벤트 추가
+				el_this.event.btnPrev.click = function(){
+					console.log('기본 이벤트에 추가 click');
+				}
+			});
+
+			// 방법 2
+			/*
+			let nemo = NS(".typeA");
+			nemo.event.btnNext.click = function(){
+				console.log('기본 이벤트에 추가 click');
+			}
+			nemo.event.btnPrev.click = function(){
+				console.log('기본 이벤트에 추가 click');
+			}
+			nemo.addEventBtnNextAndPrev();
+			*/
 		});
 	</script>
 </body>

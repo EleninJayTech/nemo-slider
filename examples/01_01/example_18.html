@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-	<h3>NS 함수로 실행 된 instance 목록</h3>
+	<h3>이전 다음 버튼 추가 (좌, 우)</h3>
 
 	<div class="typeA">
 		<div class="ns-wrap-contents">
@@ -35,16 +35,17 @@
 			<div><img src="../images/type_a/005.png" alt="005"></div>
 			<div><img src="../images/type_a/006.png" alt="006"></div>
 		</div>
+		<div>
+			<!-- 이전 버튼 -->
+			<a href="#" class="ns-btn-prev">◀</a>
+			<!-- 다음 버튼 -->
+			<a href="#" class="ns-btn-next">▶</a>
+		</div>
 	</div>
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
 			NS(".typeA");
-
-			let ns_ins = NemoSlider.instance;
-
-			// object key 는 선택자를 NemoSlider.encodeSelector 사용한 값
-			console.log(ns_ins);
 		});
 	</script>
 </body>

@@ -24,10 +24,10 @@
 	</style>
 </head>
 <body>
-	<h3>NS 함수로 실행 된 instance 목록</h3>
+	<h3>메인 콘텐츠 영역 원하는 선택자로 변경</h3>
 
 	<div class="typeA">
-		<div class="ns-wrap-contents">
+		<div class="type_a_contents">
 			<div><img src="../images/type_a/001.png" alt="001"></div>
 			<div><img src="../images/type_a/002.png" alt="002"></div>
 			<div><img src="../images/type_a/003.png" alt="003"></div>
@@ -39,12 +39,11 @@
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			NS(".typeA");
+			// 방법 1
+			NS(".typeA", {wrapContents:'.type_a_contents'});
 
-			let ns_ins = NemoSlider.instance;
-
-			// object key 는 선택자를 NemoSlider.encodeSelector 사용한 값
-			console.log(ns_ins);
+			// 방법 2
+			// NS(".typeA").setOptions({wrapContents:'.type_a_contents'});
 		});
 	</script>
 </body>

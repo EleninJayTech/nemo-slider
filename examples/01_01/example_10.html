@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-	<h3>NS 함수로 실행 된 instance 목록</h3>
+	<h3>모드 변경</h3>
 
 	<div class="typeA">
 		<div class="ns-wrap-contents">
@@ -39,12 +39,11 @@
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			NS(".typeA");
+			// 방법 1
+			NS(".typeA", {mode:'rolling'});
 
-			let ns_ins = NemoSlider.instance;
-
-			// object key 는 선택자를 NemoSlider.encodeSelector 사용한 값
-			console.log(ns_ins);
+			// 방법 2
+			// NS(".typeA").setMode('rolling');
 		});
 	</script>
 </body>

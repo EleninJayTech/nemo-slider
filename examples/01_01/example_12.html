@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-	<h3>NS 함수로 실행 된 instance 목록</h3>
+	<h3>동작 시간 변경 1,000 = 1초</h3>
 
 	<div class="typeA">
 		<div class="ns-wrap-contents">
@@ -39,12 +39,11 @@
 
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			NS(".typeA");
+			// 방법 1
+			NS(".typeA", {delay:1000});
 
-			let ns_ins = NemoSlider.instance;
-
-			// object key 는 선택자를 NemoSlider.encodeSelector 사용한 값
-			console.log(ns_ins);
+			// 방법 2
+			// NS(".typeA").setOptions({delay:1000});
 		});
 	</script>
 </body>
