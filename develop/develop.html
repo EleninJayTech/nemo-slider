@@ -55,7 +55,7 @@
 	<script defer>
 		window.addEventListener('DOMContentLoaded', (event) => {
 			NemoSlider.ENVIRONMENT = 'development';
-			let nemo = NS(".typeA", {delay:1000, mouseEnterPlayStop:true, appendEvent:function(el_this){
+			let nemo = NS(".typeA", {delay:1000, mouseEnterPlayStop:true, appendInit:function(el_this){
 				el_this.elementContents.addEventListener('click', function(e){
 					console.log('커스텀 이벤트 추가');
 					e.preventDefault();
